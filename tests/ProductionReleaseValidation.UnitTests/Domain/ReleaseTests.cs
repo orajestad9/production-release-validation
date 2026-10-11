@@ -233,4 +233,52 @@ public class ReleaseTests
         // Act & Assert
         Assert.Throws<ArgumentException>(() => new Release(version, commitSha));
     }
+
+    [Fact]
+    public void Release_Constructor_WhenCreated_AssignsNonEmptyId()
+    {
+        // Arrange
+        string version = "1.0.0";
+        string commitSha = "abc123";
+
+        // Act
+        var release = new Release(version, commitSha);
+
+        // Assert
+        Assert.NotEqual(Guid.Empty, release.Id);
+    }
+
+    [Fact]
+    public void ValidationResult_Constructor_WhenCreated_AssignsNonEmptyId()
+    {
+        // Arrange
+        var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
+
+        // Act
+        var result = new ValidationResult(
+            ValidationType.AutomatedTests,
+            ValidationOutcome.Passed,
+            timestamp);
+
+        // Assert
+        Assert.NotEqual(Guid.Empty, result.Id);
+    }
+
+    [Fact]
+    public void Constructor_WhenCreatingMultipleReleases_AssignsUniqueIds()
+    {
+        // Arrange
+        string version1 = "1.0.0";
+        string commitSha1 = "abc123";
+
+        string version2 = "1.0.1";
+        string commitSha2 = "def456";
+
+        // Act
+        var release1 = new Release(version1, commitSha1);
+        var release2 = new Release(version2, commitSha2);
+
+        // Assert
+        Assert.NotEqual(release1.Id, release2.Id);
+    }
 }

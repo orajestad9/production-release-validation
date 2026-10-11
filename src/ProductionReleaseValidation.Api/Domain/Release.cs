@@ -2,8 +2,8 @@ namespace ProductionReleaseValidation.Api.Domain
 {
     public class Release
     {
+        public Guid Id { get; private set; } = Guid.CreateVersion7();
         private readonly List<ValidationResult> _validationResults = [];
-
         public string Version { get; }
         public string CommitSha { get; }
 

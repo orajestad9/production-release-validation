@@ -7,10 +7,11 @@ namespace ProductionReleaseValidation.Api.Domain
     string? summary = null,
     string? evidenceUrl = null)
     {
-        public ValidationType Type { get; set; } = type;
-        public ValidationOutcome Outcome { get; set; } = outcome;
-        public DateTimeOffset RecordedAtUtc { get; set; } = recordedAtUtc;
-        public string? Summary { get; set; } = summary;
-        public string? EvidenceUrl { get; set; } = evidenceUrl;
+        public Guid Id { get; private set; } = Guid.CreateVersion7();
+        public ValidationType Type { get; } = type;
+        public ValidationOutcome Outcome { get; } = outcome;
+        public DateTimeOffset RecordedAtUtc { get; } = recordedAtUtc;
+        public string? Summary { get; } = summary;
+        public string? EvidenceUrl { get; } = evidenceUrl;
     }
 }
