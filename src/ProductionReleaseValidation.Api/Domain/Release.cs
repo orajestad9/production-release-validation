@@ -1,11 +1,20 @@
 namespace ProductionReleaseValidation.Api.Domain
 {
-    public class Release(string version, string commitSha)
+    public class Release
     {
         private readonly List<ValidationResult> _validationResults = [];
 
-        public string Version { get; } = version;
-        public string CommitSha { get; } = commitSha;
+        public string Version { get; }
+        public string CommitSha { get; }
+
+        public Release(string version, string commitSha)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(version);
+            ArgumentException.ThrowIfNullOrWhiteSpace(commitSha);
+
+            Version = version;
+            CommitSha = commitSha;
+        }
 
         public ReleaseStatus Status
         {

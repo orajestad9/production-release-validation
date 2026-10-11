@@ -189,4 +189,48 @@ public class ReleaseTests
 
         Assert.Single(release.ValidationResults);
     }
+
+    [Fact]
+    public void Constructor_WhenVersionIsEmpty_ThrowsArgumentException()
+    {
+        // Arrange
+        string version = "";
+        string commitSha = "abc123";
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => new Release(version, commitSha));
+    }
+
+    [Fact]
+    public void Constructor_WhenCommitShaIsEmpty_ThrowsArgumentException()
+    {
+        // Arrange
+        string version = "1.0.0";
+        string commitSha = "";
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => new Release(version, commitSha));
+    }
+
+    [Fact]
+    public void Constructor_WhenVersionIsWhitespace_ThrowsArgumentException()
+    {
+        // Arrange
+        string version = "   ";
+        string commitSha = "abc123";
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => new Release(version, commitSha));
+    }
+
+    [Fact]
+    public void Constructor_WhenCommitShaIsWhitespace_ThrowsArgumentException()
+    {
+        // Arrange
+        string version = "1.0.0";
+        string commitSha = "   ";
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => new Release(version, commitSha));
+    }
 }
