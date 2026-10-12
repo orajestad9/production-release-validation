@@ -3,17 +3,26 @@ namespace ProductionReleaseValidation.Api.Domain
     public class Release
     {
         public Guid Id { get; private set; } = Guid.CreateVersion7();
+        public Guid ServiceId { get; }
         private readonly List<ValidationResult> _validationResults = [];
         public string Version { get; }
         public string CommitSha { get; }
 
-        public Release(string version, string commitSha)
+        public Release(Guid serviceId, string version, string commitSha)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(version);
             ArgumentException.ThrowIfNullOrWhiteSpace(commitSha);
 
+            if (serviceId == Guid.Empty)
+            {
+                throw new ArgumentException(
+                    "Service ID cannot be empty.",
+                    nameof(serviceId));
+            }
+
             Version = version;
             CommitSha = commitSha;
+            ServiceId = serviceId;
         }
 
         public ReleaseStatus Status
@@ -62,17 +71,19 @@ namespace ProductionReleaseValidation.Api.Domain
 
             if (existingResult is null)
             {
+                result.AssignToRelease(Id);
                 _validationResults.Add(result);
+                return;
             }
-            else if (existingResult.Outcome == result.Outcome)
+
+            if (existingResult.Outcome == result.Outcome)
             {
-                // No change in outcome, do nothing
+                // Idempotent duplicate; keep the first accepted result.
+                return;
             }
-            else
-            {
-                throw new InvalidOperationException(
-                    $"Cannot add a validation result of type {result.Type} with outcome {result.Outcome} because a result of the same type with a different outcome already exists.");
-            }
+
+            throw new InvalidOperationException(
+                $"Cannot add a validation result of type {result.Type} with outcome {result.Outcome} because a result of the same type with a different outcome already exists.");
         }
     }
 }

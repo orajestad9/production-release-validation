@@ -8,7 +8,8 @@ public class ReleaseTests
     public void Status_WhenNoValidationResultsExist_IsPending()
     {
         // Arrange
-        var release = new Release("1.0.0", "abc123");
+        var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000002");
+        var release = new Release(serviceId, "1.0.0", "abc123");
 
         // Act
         var status = release.Status;
@@ -21,7 +22,8 @@ public class ReleaseTests
     public void Status_WhenPreDeploymentValidationsPass_IsReadyForDeployment()
     {
         // Arrange
-        var release = new Release("1.0.0", "abc123");
+        var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
+        var release = new Release(serviceId, "1.0.0", "abc123");
         var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
 
         release.AddValidationResult(
@@ -49,7 +51,8 @@ public class ReleaseTests
     public void Status_WhenAllValidationsPass_IsVerified()
     {
         // Arrange
-        var release = new Release("1.0.0", "abc123");
+        var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
+        var release = new Release(serviceId, "1.0.0", "abc123");
         var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
 
         release.AddValidationResult(
@@ -84,7 +87,8 @@ public class ReleaseTests
     public void Status_WhenAnyValidationFails_IsFailed()
     {
         // Arrange
-        var release = new Release("1.0.0", "abc123");
+        var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
+        var release = new Release(serviceId, "1.0.0", "abc123");
         var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
 
         release.AddValidationResult(
@@ -119,7 +123,8 @@ public class ReleaseTests
     public void Status_WhenPreDeploymentValidationIsIncomplete_IsPending()
     {
         // Arrange
-        var release = new Release("1.0.0", "abc123");
+        var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
+        var release = new Release(serviceId, "1.0.0", "abc123");
         var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
 
         release.AddValidationResult(
@@ -140,7 +145,8 @@ public class ReleaseTests
     public void AddValidationResult_WhenSameOutcomeAlreadyExists_DoesNotAddDuplicate()
     {
         // Arrange
-        var release = new Release("1.0.0", "abc123");
+        var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
+        var release = new Release(serviceId, "1.0.0", "abc123");
         var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
 
         var firstResult = new ValidationResult(
@@ -160,13 +166,16 @@ public class ReleaseTests
         var storedResult = Assert.Single(release.ValidationResults);
 
         Assert.Same(firstResult, storedResult);
+        Assert.Equal(release.Id, firstResult.ReleaseId);
+        Assert.Equal(Guid.Empty, duplicateResult.ReleaseId);
     }
 
     [Fact]
     public void AddValidationResult_WhenConflictingOutcomeExists_ThrowsInvalidOperationException()
     {
         // Arrange
-        var release = new Release("1.0.0", "abc123");
+        var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
+        var release = new Release(serviceId, "1.0.0", "abc123");
         var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
 
         release.AddValidationResult(
@@ -194,55 +203,60 @@ public class ReleaseTests
     public void Constructor_WhenVersionIsEmpty_ThrowsArgumentException()
     {
         // Arrange
+        var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
         string version = "";
         string commitSha = "abc123";
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => new Release(version, commitSha));
+        Assert.Throws<ArgumentException>(() => new Release(serviceId, version, commitSha));
     }
 
     [Fact]
     public void Constructor_WhenCommitShaIsEmpty_ThrowsArgumentException()
     {
         // Arrange
+        var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
         string version = "1.0.0";
         string commitSha = "";
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => new Release(version, commitSha));
+        Assert.Throws<ArgumentException>(() => new Release(serviceId, version, commitSha));
     }
 
     [Fact]
     public void Constructor_WhenVersionIsWhitespace_ThrowsArgumentException()
     {
         // Arrange
+        var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
         string version = "   ";
         string commitSha = "abc123";
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => new Release(version, commitSha));
+        Assert.Throws<ArgumentException>(() => new Release(serviceId, version, commitSha));
     }
 
     [Fact]
     public void Constructor_WhenCommitShaIsWhitespace_ThrowsArgumentException()
     {
         // Arrange
+        var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
         string version = "1.0.0";
         string commitSha = "   ";
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => new Release(version, commitSha));
+        Assert.Throws<ArgumentException>(() => new Release(serviceId, version, commitSha));
     }
 
     [Fact]
     public void Release_Constructor_WhenCreated_AssignsNonEmptyId()
     {
         // Arrange
+        var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
         string version = "1.0.0";
         string commitSha = "abc123";
 
         // Act
-        var release = new Release(version, commitSha);
+        var release = new Release(serviceId, version, commitSha);
 
         // Assert
         Assert.NotEqual(Guid.Empty, release.Id);
@@ -268,17 +282,99 @@ public class ReleaseTests
     public void Constructor_WhenCreatingMultipleReleases_AssignsUniqueIds()
     {
         // Arrange
+        var serviceId1 = Guid.Parse("019a0000-0000-7000-8000-000000000001");
         string version1 = "1.0.0";
         string commitSha1 = "abc123";
 
+        var serviceId2 = Guid.Parse("019a0000-0000-7000-8000-000000000002");
         string version2 = "1.0.1";
         string commitSha2 = "def456";
 
         // Act
-        var release1 = new Release(version1, commitSha1);
-        var release2 = new Release(version2, commitSha2);
+        var release1 = new Release(serviceId1, version1, commitSha1);
+        var release2 = new Release(serviceId2, version2, commitSha2);
 
         // Assert
         Assert.NotEqual(release1.Id, release2.Id);
+    }
+
+    [Fact]
+    public void Constructor_WhenServiceIdIsEmpty_ThrowsArgumentException()
+    {
+        // Arrange
+        var serviceId = Guid.Empty;
+        string version = "1.0.0";
+        string commitSha = "abc123";
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => new Release(serviceId, version, commitSha));
+    }
+
+    [Fact]
+    public void Constructor_WhenCreated_SetsServiceId()
+    {
+        // Arrange
+        var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
+        string version = "1.0.0";
+        string commitSha = "abc123";
+
+        // Act
+        var release = new Release(serviceId, version, commitSha);
+
+        // Assert
+        Assert.Equal(serviceId, release.ServiceId);
+    }
+
+    [Fact]
+    public void AddValidationResult_WhenResultIsAccepted_AssignsReleaseId()
+    {
+        // Arrange
+        var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
+        string version = "1.0.0";
+        string commitSha = "abc123";
+
+        var release = new Release(serviceId, version, commitSha);
+        var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
+        var result = new ValidationResult(
+            ValidationType.AutomatedTests,
+            ValidationOutcome.Passed,
+            timestamp);
+
+        // Act
+        release.AddValidationResult(result);
+
+        // Assert
+        Assert.Equal(release.Id, result.ReleaseId);
+    }
+
+    [Fact]
+    public void AddValidationResult_WhenResultBelongsToDifferentRelease_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
+
+        var firstRelease = new Release(
+            serviceId,
+            "1.0.0",
+            "abc123");
+
+        var secondRelease = new Release(
+            serviceId,
+            "1.0.1",
+            "def456");
+
+        var timestamp = new DateTimeOffset(
+            2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
+
+        var result = new ValidationResult(
+            ValidationType.AutomatedTests,
+            ValidationOutcome.Passed,
+            timestamp);
+
+        firstRelease.AddValidationResult(result);
+
+        // Act & Assert
+        Assert.Throws<InvalidOperationException>(() => secondRelease.AddValidationResult(result));
+        Assert.Equal(firstRelease.Id, result.ReleaseId);
     }
 }
