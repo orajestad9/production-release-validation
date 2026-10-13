@@ -7,8 +7,9 @@ namespace ProductionReleaseValidation.Api.Domain
         private readonly List<ValidationResult> _validationResults = [];
         public string Version { get; }
         public string CommitSha { get; }
+        public DateTimeOffset CreatedAtUtc { get; }
 
-        public Release(Guid serviceId, string version, string commitSha)
+        public Release(Guid serviceId, string version, string commitSha, DateTimeOffset createdAtUtc)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(version);
             ArgumentException.ThrowIfNullOrWhiteSpace(commitSha);
@@ -23,6 +24,7 @@ namespace ProductionReleaseValidation.Api.Domain
             Version = version;
             CommitSha = commitSha;
             ServiceId = serviceId;
+            CreatedAtUtc = createdAtUtc;
         }
 
         public ReleaseStatus Status

@@ -9,7 +9,8 @@ public class ReleaseTests
     {
         // Arrange
         var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000002");
-        var release = new Release(serviceId, "1.0.0", "abc123");
+        var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
+        var release = new Release(serviceId, "1.0.0", "abc123", timestamp);
 
         // Act
         var status = release.Status;
@@ -19,13 +20,27 @@ public class ReleaseTests
     }
 
     [Fact]
+    public void Constructor_WhenCreated_SetsCreatedAtUtc()
+    {
+        // Arrange
+        var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
+        var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
+
+        // Act
+        var release = new Release(serviceId, "1.0.0", "abc123", timestamp);
+
+        // Assert
+        Assert.Equal(timestamp, release.CreatedAtUtc);
+    }
+
+    [Fact]
     public void Status_WhenPreDeploymentValidationsPass_IsReadyForDeployment()
     {
         // Arrange
         var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
-        var release = new Release(serviceId, "1.0.0", "abc123");
         var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
-
+        var release = new Release(serviceId, "1.0.0", "abc123", timestamp);
+        
         release.AddValidationResult(
             new ValidationResult(
                 ValidationType.AutomatedTests,
@@ -52,8 +67,8 @@ public class ReleaseTests
     {
         // Arrange
         var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
-        var release = new Release(serviceId, "1.0.0", "abc123");
         var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
+        var release = new Release(serviceId, "1.0.0", "abc123", timestamp);
 
         release.AddValidationResult(
             new ValidationResult(
@@ -88,9 +103,9 @@ public class ReleaseTests
     {
         // Arrange
         var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
-        var release = new Release(serviceId, "1.0.0", "abc123");
         var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
-
+        var release = new Release(serviceId, "1.0.0", "abc123", timestamp);
+        
         release.AddValidationResult(
             new ValidationResult(
                 ValidationType.AutomatedTests,
@@ -124,8 +139,8 @@ public class ReleaseTests
     {
         // Arrange
         var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
-        var release = new Release(serviceId, "1.0.0", "abc123");
         var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
+        var release = new Release(serviceId, "1.0.0", "abc123", timestamp);
 
         release.AddValidationResult(
             new ValidationResult(
@@ -146,8 +161,8 @@ public class ReleaseTests
     {
         // Arrange
         var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
-        var release = new Release(serviceId, "1.0.0", "abc123");
         var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
+        var release = new Release(serviceId, "1.0.0", "abc123", timestamp);
 
         var firstResult = new ValidationResult(
             ValidationType.Performance,
@@ -175,8 +190,8 @@ public class ReleaseTests
     {
         // Arrange
         var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
-        var release = new Release(serviceId, "1.0.0", "abc123");
         var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
+        var release = new Release(serviceId, "1.0.0", "abc123", timestamp);
 
         release.AddValidationResult(
             new ValidationResult(
@@ -206,9 +221,10 @@ public class ReleaseTests
         var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
         string version = "";
         string commitSha = "abc123";
+        var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => new Release(serviceId, version, commitSha));
+        Assert.Throws<ArgumentException>(() => new Release(serviceId, version, commitSha, timestamp));
     }
 
     [Fact]
@@ -218,9 +234,10 @@ public class ReleaseTests
         var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
         string version = "1.0.0";
         string commitSha = "";
+        var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => new Release(serviceId, version, commitSha));
+        Assert.Throws<ArgumentException>(() => new Release(serviceId, version, commitSha, timestamp));
     }
 
     [Fact]
@@ -230,9 +247,10 @@ public class ReleaseTests
         var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
         string version = "   ";
         string commitSha = "abc123";
+        var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => new Release(serviceId, version, commitSha));
+        Assert.Throws<ArgumentException>(() => new Release(serviceId, version, commitSha, timestamp));
     }
 
     [Fact]
@@ -242,9 +260,10 @@ public class ReleaseTests
         var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
         string version = "1.0.0";
         string commitSha = "   ";
+        var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => new Release(serviceId, version, commitSha));
+        Assert.Throws<ArgumentException>(() => new Release(serviceId, version, commitSha, timestamp));
     }
 
     [Fact]
@@ -254,9 +273,10 @@ public class ReleaseTests
         var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
         string version = "1.0.0";
         string commitSha = "abc123";
+        var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
 
         // Act
-        var release = new Release(serviceId, version, commitSha);
+        var release = new Release(serviceId, version, commitSha, timestamp);
 
         // Assert
         Assert.NotEqual(Guid.Empty, release.Id);
@@ -290,9 +310,11 @@ public class ReleaseTests
         string version2 = "1.0.1";
         string commitSha2 = "def456";
 
+        var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
+
         // Act
-        var release1 = new Release(serviceId1, version1, commitSha1);
-        var release2 = new Release(serviceId2, version2, commitSha2);
+        var release1 = new Release(serviceId1, version1, commitSha1, timestamp);
+        var release2 = new Release(serviceId2, version2, commitSha2, timestamp);
 
         // Assert
         Assert.NotEqual(release1.Id, release2.Id);
@@ -305,9 +327,10 @@ public class ReleaseTests
         var serviceId = Guid.Empty;
         string version = "1.0.0";
         string commitSha = "abc123";
+        var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => new Release(serviceId, version, commitSha));
+        Assert.Throws<ArgumentException>(() => new Release(serviceId, version, commitSha, timestamp));
     }
 
     [Fact]
@@ -317,9 +340,10 @@ public class ReleaseTests
         var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
         string version = "1.0.0";
         string commitSha = "abc123";
+        var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
 
         // Act
-        var release = new Release(serviceId, version, commitSha);
+        var release = new Release(serviceId, version, commitSha, timestamp);
 
         // Assert
         Assert.Equal(serviceId, release.ServiceId);
@@ -332,9 +356,9 @@ public class ReleaseTests
         var serviceId = Guid.Parse("019a0000-0000-7000-8000-000000000001");
         string version = "1.0.0";
         string commitSha = "abc123";
-
-        var release = new Release(serviceId, version, commitSha);
         var timestamp = new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
+
+        var release = new Release(serviceId, version, commitSha, timestamp);
         var result = new ValidationResult(
             ValidationType.AutomatedTests,
             ValidationOutcome.Passed,
@@ -356,12 +380,14 @@ public class ReleaseTests
         var firstRelease = new Release(
             serviceId,
             "1.0.0",
-            "abc123");
+            "abc123",
+            new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero));
 
         var secondRelease = new Release(
             serviceId,
             "1.0.1",
-            "def456");
+            "def456",
+            new DateTimeOffset(2026, 10, 9, 12, 0, 0, TimeSpan.Zero));
 
         var timestamp = new DateTimeOffset(
             2026, 10, 9, 12, 0, 0, TimeSpan.Zero);
