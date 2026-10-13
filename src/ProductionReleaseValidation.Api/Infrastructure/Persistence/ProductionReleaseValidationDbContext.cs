@@ -8,6 +8,8 @@ public class ProductionReleaseValidationDbContext(
     : DbContext(options)
 {
     public DbSet<Service> Services => Set<Service>();
+    public DbSet<Release> Releases => Set<Release>();
+    public DbSet<ValidationResult> ValidationResults => Set<ValidationResult>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
