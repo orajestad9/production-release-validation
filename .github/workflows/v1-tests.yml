@@ -1,0 +1,44 @@
+name: V1 tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: prv_test_runner
+          POSTGRES_PASSWORD: prv_ci_tests
+          POSTGRES_DB: prv_test_0123456789abcdef0123456789abcdef
+        ports:
+          - 5432/tcp
+        options: >-
+          --health-cmd "pg_isready --host=127.0.0.1 -U prv_test_runner -d prv_test_0123456789abcdef0123456789abcdef"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Restore
+        run: dotnet restore ProductionReleaseValidation.sln
+      - name: Build
+        run: dotnet build ProductionReleaseValidation.sln --configuration Release --no-restore
+      - name: Run all approved V1 tests
+        env:
+          PRV_TEST_POSTGRES: Host=127.0.0.1;Port=${{ job.services.postgres.ports[5432] }};Database=prv_test_0123456789abcdef0123456789abcdef;Username=prv_test_runner;Password=prv_ci_tests
+          PRV_TEST_POSTGRES_DISPOSABLE: 'true'
+        run: dotnet test ProductionReleaseValidation.sln --configuration Release --no-build --no-restore --logger trx

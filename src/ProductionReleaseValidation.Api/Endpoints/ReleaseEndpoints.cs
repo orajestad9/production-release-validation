@@ -33,7 +33,7 @@ public static class ReleaseEndpoints
             return Conflict("A service with this name already exists.");
         }
 
-        var service = new Service(request.Name!, DateTimeOffset.UtcNow);
+        var service = new Service(request.Name!, PersistenceTimestamp());
         db.Services.Add(service);
 
         try
@@ -79,7 +79,7 @@ public static class ReleaseEndpoints
         }
 
         var release = new Release(request.ServiceId!.Value, request.Version!, request.CommitSha!,
-            DateTimeOffset.UtcNow);
+            PersistenceTimestamp());
         db.Releases.Add(release);
 
         try
@@ -124,7 +124,7 @@ public static class ReleaseEndpoints
         }
 
         var result = new DomainValidationResult(request.Type!.Value, request.Outcome!.Value,
-            DateTimeOffset.UtcNow, request.Summary, request.EvidenceUrl);
+            PersistenceTimestamp(), request.Summary, request.EvidenceUrl);
         release.AddValidationResult(result);
         // Explicitly insert the new child: its domain-generated key is already populated.
         db.ValidationResults.Add(result);
@@ -195,6 +195,13 @@ public static class ReleaseEndpoints
     private static IResult Conflict(string detail) =>
         Results.Problem(statusCode: StatusCodes.Status409Conflict,
             title: "Conflict", detail: detail);
+
+    // PostgreSQL stores microseconds; return the same timestamp before and after a reload.
+    private static DateTimeOffset PersistenceTimestamp()
+    {
+        var now = DateTimeOffset.UtcNow;
+        return now.AddTicks(-(now.Ticks % TimeSpan.TicksPerMicrosecond));
+    }
 
     private static bool IsUniqueViolation(DbUpdateException exception) =>
         exception.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation };
