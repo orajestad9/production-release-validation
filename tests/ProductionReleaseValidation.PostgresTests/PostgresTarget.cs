@@ -33,7 +33,7 @@ internal static class PostgresTarget
             throw new InvalidOperationException(
                 "Unsafe PostgreSQL test target: require loopback, user prv_test_runner, database prv_test_<32 lowercase hex>, and no Options, Search Path or Multiplexing.");
 
-        // Make connection behavior independent of ambient PG* defaults.
+        // Use bounded waits and fresh connections, and omit server error detail from exceptions.
         target.Timeout = 5;
         target.CommandTimeout = 30;
         target.Pooling = false;

@@ -103,7 +103,7 @@ $env:ConnectionStrings__Postgres = "Host=127.0.0.1;Port=$demoPort;Database=prv_d
 ```
 
 The API reads `ConnectionStrings:Postgres` through standard .NET configuration;
-`ConnectionStrings__Postgres` is the environment variable form. No connection
+`ConnectionStrings__Postgres` is the environment variable form. No application database connection
 string is committed. The application fails at startup if it is missing.
 For a separate persistent local setup, .NET user secrets are also supported when
 running in `Development` (set `$env:ASPNETCORE_ENVIRONMENT = 'Development'`):

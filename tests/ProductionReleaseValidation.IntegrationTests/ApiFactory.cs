@@ -10,7 +10,7 @@ using ProductionReleaseValidation.Api.Infrastructure.Persistence;
 namespace ProductionReleaseValidation.IntegrationTests;
 
 // These tests exercise HTTP behavior and relational persistence using SQLite.
-// They do not verify PostgreSQL constraints, exception handling, or concurrent writes.
+// They do not verify PostgreSQL-specific constraints or exception handling, or concurrent writes.
 public sealed class ApiFactory : WebApplicationFactory<Program>
 {
     private readonly SqliteConnection _connection = new("Data Source=:memory:");
