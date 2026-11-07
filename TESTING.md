@@ -1,8 +1,14 @@
 # V1 automated tests
 
-Requires .NET SDK 10 and Docker running Linux containers. No application database
-configuration, user secrets, Neon credentials, or existing PostgreSQL container is
-needed. Dependency versions match the existing suite.
+Requires .NET SDK 10, PowerShell on Windows, and Docker running Linux containers.
+The complete `scripts/Test-V1.ps1` runner has been independently verified using
+Windows PowerShell 5.1; PowerShell 7 is not required for that verified workflow.
+Compatibility with other shells and platforms has not been verified. Run from
+the repository root. No application database configuration, user secrets, hosted
+database credentials, or existing PostgreSQL container is needed.
+
+These tests verify this repository's application. They do not run checks for
+releases recorded in the API: validation evidence in V1 is manually submitted.
 
 ## Complete local run (PowerShell)
 
@@ -16,8 +22,9 @@ test. PostgreSQL data lives in temporary memory. The script stops only the conta
 ID returned by its own `docker run`, even if tests fail. Environment variables are
 restored afterward. Repeating the command creates a fresh target each time.
 
-The existing `prv-postgres-v1` container and `prv_v1_verify` database must never be
-used for automated tests. Do not use development configuration or Neon.
+Never use existing development, shared, client, production, or remote databases
+for automated tests. Use only a fresh disposable local target. The script does
+not use the application's `ConnectionStrings:Postgres` configuration.
 
 ## Existing tests without PostgreSQL
 
@@ -26,7 +33,7 @@ dotnet test tests/ProductionReleaseValidation.UnitTests --configuration Release
 dotnet test tests/ProductionReleaseValidation.IntegrationTests --configuration Release
 ```
 
-The SQLite factory and its tests remain unchanged. Release builds also avoid a
+The integration project uses an in-memory SQLite database. Release builds also avoid a
 file-lock conflict when a manually started Debug API is still running.
 
 ## Supplying your own disposable target
@@ -65,7 +72,8 @@ A fixed seven-digit timestamp demonstrates that PostgreSQL/Npgsql retains six
 fractional digits while the tracked .NET instance retains seven. Regression checks
 require API-created timestamps and original/duplicate/reloaded evidence to agree
 exactly. The API truncates its three generated UTC timestamps to microseconds;
-the domain model and migration are unchanged.
+the domain retains its supplied timestamps, while API timestamp generation
+accounts for the database's precision.
 
 `.github/workflows/v1-tests.yml` runs on pushes, pull requests and manual dispatch.
 It uses a healthy temporary PostgreSQL 17 service with a dynamically allocated
